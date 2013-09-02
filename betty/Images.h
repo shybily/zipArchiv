@@ -10,10 +10,10 @@
 #import <Foundation/Foundation.h>
 
 @interface Images : NSObject{
-    NSString *_path;
+    NSURL *_path;
 }
 
-- (void) setPath:(NSString *)path;
+- (void) setPath:(NSURL *)path;
 - (NSString *) getFileName;
 
 @end

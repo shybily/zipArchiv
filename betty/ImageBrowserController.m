@@ -7,6 +7,7 @@
 //
 
 #import "ImageBrowserController.h"
+#import "FileList.h"
 
 static NSArray *openFiles()
 {
@@ -17,9 +18,11 @@ static NSArray *openFiles()
     [panel setCanChooseDirectories:YES];
     [panel setCanChooseFiles:YES];
     [panel setAllowsMultipleSelection:NO];
-    [panel setAllowedFileTypes:[NSArray arrayWithObjects: @"jpg",@"JPG",@"png",@"gif",@"jpeg", nil]];
+    [panel setAllowedFileTypes:[NSArray arrayWithObjects: @"jpg",@"JPG",@"png",@"gif",@"jpeg",@"doc",@"docx",@"xls",@"xlsx",@"txt",@"pdf", nil]];
     [panel setAllowsMultipleSelection:YES];
     [panel setDirectoryURL:[NSURL fileURLWithPath:[@"~" stringByExpandingTildeInPath]]];
+	[panel setTitle:@"Choose a directory of images"];
+	[panel setPrompt:@"Choose"];
 	NSInteger i = [panel runModal];
 	if (i == NSOKButton)
     {
@@ -33,7 +36,7 @@ static NSURL *getSavePath()
 {
     NSSavePanel *savePanel;
     
-    NSLog(@"%@",savePanel);
+//    NSLog(@"%@",savePanel);
     savePanel = [NSSavePanel new];
     [savePanel setAllowedFileTypes:[NSArray arrayWithObjects: @"zip", nil]];
 //    defaultDirectoryPath = @"/User/shybily/Desktop";
@@ -55,12 +58,21 @@ static NSURL *getSavePath()
 
 @implementation ImageBrowserController
 
+-(id)init{
+    self = [super init];
+    if(self){
+        [self initStatusBar];
+        [currDir addObject:NSHomeDirectory()];
+    }
+    return self;
+}
+
 - (id)initWithWindow:(NSWindow *)window
 {
     self = [super initWithWindow:window];
     if (self) {
         // Initialization code here.
-        [self initStatusBar];
+//        [self initStatusBar];
     }
     
     return self;
@@ -90,6 +102,12 @@ static NSURL *getSavePath()
     [_imageBrowser setAllowsReordering:YES];
     [_imageBrowser setAnimates:YES];
     [_imageBrowser setDraggingDestinationDelegate:self];
+    [_imageBrowser setCellsStyleMask:IKCellsStyleTitled];
+    
+    @autoreleasepool {
+        [NSThread detachNewThreadSelector:@selector(addImagesWithPaths:) toTarget:self withObject:[NSArray arrayWithObjects:[[NSURL alloc]initFileURLWithPath:NSHomeDirectory()], nil]];
+    }
+//        [imageBrowser setCellsStyleMask:IKCellsStyleTitled];
 }
 
 /* entry point for reloading image-browser's data and setNeedsDisplay */
@@ -104,43 +122,112 @@ static NSURL *getSavePath()
     [_imageBrowser reloadData];
 }
 
-- (void)addAnImageWithPath:(NSString *)path
+- (void)addAnImageWithPath:(NSURL *)path
 {
+    
     Images *p;
 	/* add a path to our temporary array */
     p = [[Images alloc] init];
     [p setPath:path];
     [_importedImages addObject:p];
-//    NSLog(@"%@",p);
-//    [p autorelease];
+    
 }
 
-- (void)addImagesWithPath:(NSString *)path recursive:(BOOL)recursive
+- (BOOL)isImageFile:(NSURL *)url
+{
+    BOOL isImageFile = NO;
+    
+//    NSString *path = [[NSString new] stringByAppendingFormat:@"file:/%@",[url absoluteString]];
+//    NSURL *tmp = [[NSURL new]initWithString:path];
+    
+    NSString *utiValue;
+    [url getResourceValue:&utiValue forKey:NSURLTypeIdentifierKey error:nil];
+    if (utiValue)
+    {
+//        NSLog(@"%@",(CFStringRef)CFBridgingRetain(utiValue));
+//        [utiValue isEqualToString:(NSString *)];
+        isImageFile = UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypeImage) || UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypeText);
+    }
+    return isImageFile;
+}
+
+- (BOOL)isAllowableFileType:(NSURL *)url{
+    BOOL isAllowed = NO;
+    NSString *utiValue;
+    [url getResourceValue:&utiValue forKey:NSURLTypeIdentifierKey error:nil];
+    if(utiValue){
+//        NSLog(@"%@",utiValue);
+        BOOL isImage = UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypeImage);
+        BOOL isText = UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypeText);
+        BOOL isPdf = UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypePDF);
+        BOOL isWordDocument = [utiValue isEqualToString:@"com.microsoft.word.doc"] || [utiValue isEqualToString:@"org.openxmlformats.wordprocessingml.document"];
+        BOOL isExcelDocument = [utiValue isEqualToString:@"com.microsoft.excel.xls"] || [utiValue isEqualToString:@"org.openxmlformats.spreadsheetml.sheet"];
+        
+        isAllowed = isImage || isText || isPdf || isWordDocument || isExcelDocument;
+        
+//        isAllowed =  UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypeText) || [utiValue isEqualToString:@"com.microsoft.word.doc"] || [utiValue isEqualToString:@"com.adobe.pdf"];
+    }
+    return isAllowed;
+}
+
+- (void)addImageWithURL:(NSURL *)imageURL
+{
+    NSNumber *hiddenFlag = nil;
+    if ([imageURL getResourceValue:&hiddenFlag forKey:NSURLIsHiddenKey error:nil])
+    {
+        NSNumber *isDirectoryFlag = nil;
+        if ([imageURL getResourceValue:&isDirectoryFlag forKey:NSURLIsDirectoryKey error:nil])
+        {
+            NSNumber *isPackageFlag = nil;
+            if ([imageURL getResourceValue:&isPackageFlag forKey:NSURLIsPackageKey error:nil])
+            {
+                // only "add visible" file system objects, folders and images (no packages)
+                if (![hiddenFlag boolValue] && ![isPackageFlag boolValue] &&
+                    ([isDirectoryFlag boolValue] || [self isAllowableFileType:imageURL]))
+                {
+//                NSLog(@"aaa %c",[hiddenFlag boolValue]);
+//                if (![hiddenFlag boolValue] && ![isPackageFlag boolValue] &&
+//                    ([isDirectoryFlag boolValue]))
+//                {
+                    Images *p = [[Images alloc] init];
+                    [p setPath:imageURL];
+                    [_importedImages addObject:p];
+                }
+            }
+        }
+    }
+}
+
+- (void)addImagesFromDirectory:(NSURL *)directoryURL
+{
+	NSArray *content = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:directoryURL
+                                                     includingPropertiesForKeys:nil
+                                                                        options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                          error:nil];
+    for (NSURL *imageURL in content)
+    {
+        [self addImageWithURL:imageURL];
+    }
+    
+//	[self updateDatasource];
+}
+
+- (void)addImagesWithPath:(NSURL *)path recursive:(BOOL)recursive
 {
 //    NSLog(@"%@",path);
-    NSInteger i, n;
+//    NSInteger i, n;
     BOOL dir;
     
-    [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&dir];
+    [[NSFileManager defaultManager] fileExistsAtPath:[path path] isDirectory:&dir];
     
     if (dir)
     {
-        NSArray *content = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
-        
-        n = [content count];
-        
-		// parse the directory content
-        for (i=0; i<n; i++)
-        {
-            if (recursive)
-                [self addImagesWithPath:[path stringByAppendingPathComponent:[content objectAtIndex:i]] recursive:YES];
-            else
-                [self addAnImageWithPath:[path stringByAppendingPathComponent:[content objectAtIndex:i]]];
-        }
+        [self addImagesFromDirectory:path];
     }
     else
     {
-        [self addAnImageWithPath:path];
+        [self addImageWithURL:path];
+//        [self addAnImageWithPath:path];
     }
 }
 
@@ -153,11 +240,12 @@ static NSURL *getSavePath()
 //    [urls retain];
     
     n = [urls count];
-    NSLog(@"%ld",(long)n);
+//    NSLog(@"%ld",(long)n);
     for ( i= 0; i < n; i++)
     {
         NSURL *url = [urls objectAtIndex:i];
-        [self addImagesWithPath:[url path] recursive:NO];
+//        NSLog(@"%@",url);
+        [self addImagesWithPath:url recursive:NO];
     }
     
 	/* update the datasource in the main thread */
@@ -188,7 +276,7 @@ static NSURL *getSavePath()
 }
 
 - (void)compression:(id)sender{
-    NSLog(@"%@",_images);
+//    NSLog(@"%@",_images);
     if([_images count] <= 0){
         NSAlert* alert = [NSAlert alertWithMessageText:@"错误!" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"请先选择要打包的文件" ];
         [alert beginSheetModalForWindow:nil modalDelegate:nil didEndSelector:nil contextInfo:nil];
@@ -196,23 +284,80 @@ static NSURL *getSavePath()
         @autoreleasepool {
             NSURL *savePath = getSavePath();
             NSFileManager *fileManager = [NSFileManager defaultManager];
-            NSMutableArray *items = [NSMutableArray new];
+//            NSMutableArray *items = [NSMutableArray new];
+            ZipArchive *zipFile = [ZipArchive new];
+            [zipFile CreateZipFile2:[savePath path]];
             for (NSObject *value in _images) {
                 
-                if([fileManager fileExistsAtPath:[value imageRepresentation]]){
-                    NSString *tmp = [[NSString alloc]initWithData:[[value imageRepresentation] dataUsingEncoding:NSUnicodeStringEncoding] encoding:NSUnicodeStringEncoding];
-                    NSLog(@"%@",tmp);
-                    [items addObject:tmp];
+                if([fileManager fileExistsAtPath:[[value imageRepresentation]path]]){
+                    if ([self isDir:[value imageRepresentation]]) {
+                        NSArray *content = [self readDir:[value imageRepresentation]];
+//                        NSLog(@"%@",content);
+                        for (FileList *val in content) {
+//                            NSLog(@"%@",val);
+                            if([self isAllowableFileType:[val getFullPath]]){
+                                [zipFile addFileToZip:[[val getFullPath]path] newname:[val getNewName]];
+                            }
+                        }
+                        
+                    }else{
+                        NSString *newname = [[value imageRepresentation] lastPathComponent];
+//                        NSLog(@"%@ : %@",newname,[value imageRepresentation]);
+                        [zipFile addFileToZip:[[value imageRepresentation] path] newname:newname];
+                    }
                 }
             }
-            NSLog(@"items : %lu",(unsigned long)[items count]);
-            if ([items count] >= 1) {
-                ZipArchive *zipFile = [ZipArchive archiveWithArchivePath:[savePath path]];
-                NSLog(@"zipFile : %@",zipFile);
-                [ZipArchive process:zipFile withItems:items usingResourceFork:YES withInvoker:nil andDelegate:self];
+            [zipFile CloseZipFile2];
+        }
+    }
+}
+
+- (NSMutableArray *)readDir:(NSURL *)path{
+    NSMutableArray *fileList = [NSMutableArray new];
+    if ([self isDir:path]) {
+        NSArray *content = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:path
+                                                         includingPropertiesForKeys:nil
+                                                                            options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                              error:nil];
+        for (NSURL *value in content) {
+            if([self isDir:value]){
+                NSArray *tmpArray = [self readDir:value addPreName:[path lastPathComponent]];
+                [fileList addObjectsFromArray:tmpArray];
+            }else{
+                FileList *list = [FileList new];
+                [list addFullPath:value withNewName:[NSString stringWithFormat:@"%@/%@",[path lastPathComponent],[value lastPathComponent]]];
+                [fileList addObject:list];
             }
         }
     }
+    return fileList;
+}
+
+- (NSArray *)readDir:(NSURL *)path addPreName:(NSString *)preName{
+    NSMutableArray *fileList = [NSMutableArray new];
+    if ([self isDir:path]) {
+        NSArray *content = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:path
+                                                         includingPropertiesForKeys:nil
+                                                                            options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                              error:nil];
+        for (NSURL *value in content) {
+            if([self isDir:value]){
+                NSArray *tmpArray = [self readDir:value addPreName:[NSString stringWithFormat:@"%@/%@",preName,[path lastPathComponent]]];
+                [fileList addObjectsFromArray:tmpArray];
+            }else{
+                FileList *list = [FileList new];
+                [list addFullPath:value withNewName:[NSString stringWithFormat:@"%@/%@/%@",preName,[path lastPathComponent],[value lastPathComponent]]];
+                [fileList addObject:list];
+            }
+        }
+    }
+    return fileList;
+}
+
+- (BOOL) isDir:(NSURL *)path{
+    BOOL dir;
+    [[NSFileManager defaultManager] fileExistsAtPath:[path path] isDirectory:&dir];
+    return dir;
 }
 
 - (void)zoomSlider:(id)sender{
@@ -287,6 +432,60 @@ static NSURL *getSavePath()
 }
 
 
+#pragma mark - IKImageBrowserDelegate
+
+-(void) imageBrowser:(IKImageBrowserView *)aBrowser cellWasDoubleClickedAtIndex:(NSUInteger)index{
+    NSIndexSet *selectionIndexes = [aBrowser selectionIndexes];
+//    NSLog(@"change %@",selectionIndexes);
+	if ([selectionIndexes count] > 0)
+	{
+        Images *anItem = [_images objectAtIndex:[selectionIndexes firstIndex]];
+        BOOL dir;
+        
+        [[NSFileManager defaultManager] fileExistsAtPath:[[anItem imageRepresentation]path] isDirectory:&dir];
+        if(dir){
+            [_images removeAllObjects];
+            [_importedImages removeAllObjects];
+            [self addImagesWithPath:[anItem imageRepresentation] recursive:NO];
+            [self updateDatasource];
+        }else{
+            [[NSWorkspace sharedWorkspace]openFile:[[anItem imageRepresentation]path]];
+        }
+    }
+    //        return NO;
+}
+
+//- (void)imageBrowserSelectionDidChange:(IKImageBrowserView *)aBrowser
+//{
+//	NSIndexSet *selectionIndexes = [aBrowser selectionIndexes];
+//	NSLog(@"change %@",selectionIndexes);
+//	if ([selectionIndexes count] > 0)
+//	{
+//////        NSDictionary *screenOptions = [[NSWorkspace sharedWorkspace] desktopImageOptionsForScreen:curScreen];
+//////
+//        Images *anItem = [_images objectAtIndex:[selectionIndexes firstIndex]];
+////        NSLog(@"selected : %@",[anItem imageTitle]);
+////		NSURL *url = [anItem imageRepresentation];
+////        NSNumber *isDirectoryFlag = nil;
+//        BOOL dir;
+//        
+//        [[NSFileManager defaultManager] fileExistsAtPath:[anItem imageRepresentation] isDirectory:&dir];
+//        NSLog(@"%c",dir);
+////        if ([url getResourceValue:&isDirectoryFlag forKey:NSURLIsDirectoryKey error:nil] && ![isDirectoryFlag boolValue])
+////        {
+////            NSError *error = nil;
+//////            [[NSWorkspace sharedWorkspace] setDesktopImageURL:url
+//////                                                    forScreen:curScreen
+//////                                                      options:screenOptions
+//////                                                        error:&error];
+////            if (error)
+////            {
+////                [NSApp presentError:error];
+////            }
+////        }
+//	}
+//}
+
 #pragma mark -
 #pragma mark drag n drop
 
@@ -348,10 +547,16 @@ static NSURL *getSavePath()
     item = [menu addItemWithTitle:@"Quit" action:@selector(quitAction:) keyEquivalent:@""];
     [item setTarget:self];
     
-    trayItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength];
+    trayItem = [[NSStatusBar systemStatusBar]statusItemWithLength:NSSquareStatusItemLength];
+    
     [trayItem setMenu:menu];
     [trayItem setHighlightMode:YES];
-    [trayItem setTitle:@"HERE"];
+//    [trayItem setTitle:@"HERE"];
+    NSImage *barImage = [NSImage imageNamed:@"barIcon@24*24.png"];
+    [barImage setSize:NSMakeSize(18.0, 18.0)];
+//    [barImage initWithContentsOfFile:@"0.jpg"];
+//    NSLog(@"barImage : %@",barImage);
+    [trayItem setImage:barImage];
 }
 
 //退出
@@ -364,6 +569,16 @@ static NSURL *getSavePath()
     [_importedImages removeAllObjects];
     [_images removeAllObjects];
     [self updateDatasource];
+}
+
+//清除
+- (void)home:(id)sender{
+    [_importedImages removeAllObjects];
+    [_images removeAllObjects];
+    [self updateDatasource];
+    @autoreleasepool {
+        [NSThread detachNewThreadSelector:@selector(addImagesWithPaths:) toTarget:self withObject:[NSArray arrayWithObjects:[[NSURL alloc]initFileURLWithPath:NSHomeDirectory()], nil]];
+    }
 }
 
 

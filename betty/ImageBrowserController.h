@@ -21,6 +21,7 @@
     NSMutableArray *_images;
     NSMutableArray *_importedImages;
     NSMutableArray *_selectFiles;
+    NSMutableArray *currDir;
 //    ZKArchive *_zipFile;
 }
 
@@ -31,8 +32,12 @@
 - (IBAction)quitAction:(id)sender;
 - (IBAction)compression:(id)sender;
 - (IBAction)clean:(id)sender;
+- (IBAction)home:(id)sender;
 
 - (void)initStatusBar;
+- (BOOL)isAllowableFileType:(NSURL *)url;
+- (NSArray *)readDir:(NSURL *)path;
+- (NSArray *)readDir:(NSURL *)path addPreName:(NSString *)preName;
 
 
 @end

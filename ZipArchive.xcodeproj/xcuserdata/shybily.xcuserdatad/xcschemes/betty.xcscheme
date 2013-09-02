@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8237E70F17AF917D007B4756"
-               BuildableName = "betty.app"
-               BlueprintName = "betty"
-               ReferencedContainer = "container:betty.xcodeproj">
+               BuildableName = "ZipArchive.app"
+               BlueprintName = "ZipArchive"
+               ReferencedContainer = "container:ZipArchive.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8237E72F17AF917E007B4756"
-               BuildableName = "bettyTests.octest"
-               BlueprintName = "bettyTests"
-               ReferencedContainer = "container:betty.xcodeproj">
+               BuildableName = "ZipArchiveTests.octest"
+               BlueprintName = "ZipArchiveTests"
+               ReferencedContainer = "container:ZipArchive.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -43,9 +43,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8237E70F17AF917D007B4756"
-            BuildableName = "betty.app"
-            BlueprintName = "betty"
-            ReferencedContainer = "container:betty.xcodeproj">
+            BuildableName = "ZipArchive.app"
+            BlueprintName = "ZipArchive"
+            ReferencedContainer = "container:ZipArchive.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8237E70F17AF917D007B4756"
-            BuildableName = "betty.app"
-            BlueprintName = "betty"
-            ReferencedContainer = "container:betty.xcodeproj">
+            BuildableName = "ZipArchive.app"
+            BlueprintName = "ZipArchive"
+            ReferencedContainer = "container:ZipArchive.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -80,9 +80,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8237E70F17AF917D007B4756"
-            BuildableName = "betty.app"
-            BlueprintName = "betty"
-            ReferencedContainer = "container:betty.xcodeproj">
+            BuildableName = "ZipArchive.app"
+            BlueprintName = "ZipArchive"
+            ReferencedContainer = "container:ZipArchive.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

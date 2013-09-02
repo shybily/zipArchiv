@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:betty.xcodeproj">
+      location = "self:ZipArchive.xcodeproj">
    </FileRef>
 </Workspace>

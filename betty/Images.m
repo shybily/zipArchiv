@@ -11,7 +11,7 @@
 @implementation Images
 
 /* our datasource object is just a filepath representation */
-- (void)setPath:(NSString *)path
+- (void)setPath:(NSURL *)path
 {
     if(_path != path)
     {
@@ -39,13 +39,21 @@
 /* give our representation to the image browser */
 - (id)imageRepresentation
 {
+//        NSLog(@"imageRepresentation: %@",_path);
 	return _path;
 }
 
 /* use the absolute filepath as identifier */
 - (NSString *)imageUID
 {
-    return _path;
+//    NSLog(@"imageUID: %@",_path);
+    return [NSString stringWithFormat:@"%@", _path];
+}
+
+- (id)imageTitle
+{
+//    NSLog(@"imageTitle: %@",[_path lastPathComponent]);
+	return [_path lastPathComponent];
 }
 
 @end
