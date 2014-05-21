@@ -16,12 +16,15 @@
     
     NSStatusItem *trayItem;
     IBOutlet IKImageBrowserView *_imageBrowser;
+    IBOutlet NSPanel *progressPanel;
+    IBOutlet NSProgressIndicator *progressIndicator;
 //    IBOutlet NSWindow *window;
     
     NSMutableArray *_images;
     NSMutableArray *_importedImages;
     NSMutableArray *_selectFiles;
     NSMutableArray *currDir;
+    
 //    ZKArchive *_zipFile;
 }
 
@@ -34,10 +37,15 @@
 - (IBAction)clean:(id)sender;
 - (IBAction)home:(id)sender;
 
+- (IBAction)cancelProgress:(id)sender;
+- (void) progressDidEnd:(NSWindow *)panel returnCode:(int)returnCode contextInfo:(void *)context;
+
 - (void)initStatusBar;
 - (BOOL)isAllowableFileType:(NSURL *)url;
 - (NSArray *)readDir:(NSURL *)path;
 - (NSArray *)readDir:(NSURL *)path addPreName:(NSString *)preName;
+
+- (void)mkZipArchive:(NSURL *)savePath;
 
 
 @end

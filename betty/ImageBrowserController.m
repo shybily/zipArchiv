@@ -36,20 +36,20 @@ static NSURL *getSavePath()
 {
     NSSavePanel *savePanel;
     
-//    NSLog(@"%@",savePanel);
+    //    NSLog(@"%@",savePanel);
     savePanel = [NSSavePanel new];
     [savePanel setAllowedFileTypes:[NSArray arrayWithObjects: @"zip", nil]];
-//    defaultDirectoryPath = @"/User/shybily/Desktop";
+    //    defaultDirectoryPath = @"/User/shybily/Desktop";
     
-//    [savePanel setNameFieldStringValue:defaultName];
-//    [savePanel setDirectoryURL:[NSURL fileURLWithPath:defaultDirectoryPath]];
+    //    [savePanel setNameFieldStringValue:defaultName];
+    //    [savePanel setDirectoryURL:[NSURL fileURLWithPath:defaultDirectoryPath]];
     NSInteger i = [savePanel runModal];
     if (i == NSOKButton) {
         return [savePanel URL];
     }
     return nil;
     
-//    return savePanel;
+    //    return savePanel;
 }
 
 @interface ImageBrowserController ()
@@ -72,7 +72,7 @@ static NSURL *getSavePath()
     self = [super initWithWindow:window];
     if (self) {
         // Initialization code here.
-//        [self initStatusBar];
+        //        [self initStatusBar];
     }
     
     return self;
@@ -81,7 +81,7 @@ static NSURL *getSavePath()
 - (void)windowDidLoad
 {
     [super windowDidLoad];
-//    NSLog(@"%s","windowDidLoad");
+    //    NSLog(@"%s","windowDidLoad");
     [_images removeAllObjects];
     [_importedImages removeAllObjects];
     [self updateDatasource];
@@ -97,7 +97,7 @@ static NSURL *getSavePath()
     
     _images = [[NSMutableArray alloc] init];
     _importedImages = [[NSMutableArray alloc] init];
-
+    
     //allow reordering, animations et set draggind destination delegate
     [_imageBrowser setAllowsReordering:YES];
     [_imageBrowser setAnimates:YES];
@@ -107,7 +107,7 @@ static NSURL *getSavePath()
     @autoreleasepool {
         [NSThread detachNewThreadSelector:@selector(addImagesWithPaths:) toTarget:self withObject:[NSArray arrayWithObjects:[[NSURL alloc]initFileURLWithPath:NSHomeDirectory()], nil]];
     }
-//        [imageBrowser setCellsStyleMask:IKCellsStyleTitled];
+    //        [imageBrowser setCellsStyleMask:IKCellsStyleTitled];
 }
 
 /* entry point for reloading image-browser's data and setNeedsDisplay */
@@ -137,15 +137,15 @@ static NSURL *getSavePath()
 {
     BOOL isImageFile = NO;
     
-//    NSString *path = [[NSString new] stringByAppendingFormat:@"file:/%@",[url absoluteString]];
-//    NSURL *tmp = [[NSURL new]initWithString:path];
+    //    NSString *path = [[NSString new] stringByAppendingFormat:@"file:/%@",[url absoluteString]];
+    //    NSURL *tmp = [[NSURL new]initWithString:path];
     
     NSString *utiValue;
     [url getResourceValue:&utiValue forKey:NSURLTypeIdentifierKey error:nil];
     if (utiValue)
     {
-//        NSLog(@"%@",(CFStringRef)CFBridgingRetain(utiValue));
-//        [utiValue isEqualToString:(NSString *)];
+        //        NSLog(@"%@",(CFStringRef)CFBridgingRetain(utiValue));
+        //        [utiValue isEqualToString:(NSString *)];
         isImageFile = UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypeImage) || UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypeText);
     }
     return isImageFile;
@@ -156,7 +156,7 @@ static NSURL *getSavePath()
     NSString *utiValue;
     [url getResourceValue:&utiValue forKey:NSURLTypeIdentifierKey error:nil];
     if(utiValue){
-//        NSLog(@"%@",utiValue);
+        //        NSLog(@"%@",utiValue);
         BOOL isImage = UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypeImage);
         BOOL isText = UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypeText);
         BOOL isPdf = UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypePDF);
@@ -165,7 +165,7 @@ static NSURL *getSavePath()
         
         isAllowed = isImage || isText || isPdf || isWordDocument || isExcelDocument;
         
-//        isAllowed =  UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypeText) || [utiValue isEqualToString:@"com.microsoft.word.doc"] || [utiValue isEqualToString:@"com.adobe.pdf"];
+        //        isAllowed =  UTTypeConformsTo((CFStringRef)CFBridgingRetain(utiValue), kUTTypeText) || [utiValue isEqualToString:@"com.microsoft.word.doc"] || [utiValue isEqualToString:@"com.adobe.pdf"];
     }
     return isAllowed;
 }
@@ -185,10 +185,10 @@ static NSURL *getSavePath()
                 if (![hiddenFlag boolValue] && ![isPackageFlag boolValue] &&
                     ([isDirectoryFlag boolValue] || [self isAllowableFileType:imageURL]))
                 {
-//                NSLog(@"aaa %c",[hiddenFlag boolValue]);
-//                if (![hiddenFlag boolValue] && ![isPackageFlag boolValue] &&
-//                    ([isDirectoryFlag boolValue]))
-//                {
+                    //                NSLog(@"aaa %c",[hiddenFlag boolValue]);
+                    //                if (![hiddenFlag boolValue] && ![isPackageFlag boolValue] &&
+                    //                    ([isDirectoryFlag boolValue]))
+                    //                {
                     Images *p = [[Images alloc] init];
                     [p setPath:imageURL];
                     [_importedImages addObject:p];
@@ -209,13 +209,13 @@ static NSURL *getSavePath()
         [self addImageWithURL:imageURL];
     }
     
-//	[self updateDatasource];
+    //	[self updateDatasource];
 }
 
 - (void)addImagesWithPath:(NSURL *)path recursive:(BOOL)recursive
 {
-//    NSLog(@"%@",path);
-//    NSInteger i, n;
+    //    NSLog(@"%@",path);
+    //    NSInteger i, n;
     BOOL dir;
     
     [[NSFileManager defaultManager] fileExistsAtPath:[path path] isDirectory:&dir];
@@ -227,7 +227,7 @@ static NSURL *getSavePath()
     else
     {
         [self addImageWithURL:path];
-//        [self addAnImageWithPath:path];
+        //        [self addAnImageWithPath:path];
     }
 }
 
@@ -236,23 +236,23 @@ static NSURL *getSavePath()
 {
     NSInteger i, n;
     
-//    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-//    [urls retain];
+    //    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    //    [urls retain];
     
     n = [urls count];
-//    NSLog(@"%ld",(long)n);
+    //    NSLog(@"%ld",(long)n);
     for ( i= 0; i < n; i++)
     {
         NSURL *url = [urls objectAtIndex:i];
-//        NSLog(@"%@",url);
+        //        NSLog(@"%@",url);
         [self addImagesWithPath:url recursive:NO];
     }
     
 	/* update the datasource in the main thread */
     [self performSelectorOnMainThread:@selector(updateDatasource) withObject:nil waitUntilDone:YES];
     
-//    [urls release];
-//    [pool release];
+    //    [urls release];
+    //    [pool release];
 }
 
 - (void)addImage:(id)sender{
@@ -260,14 +260,10 @@ static NSURL *getSavePath()
     
     if (!urls)
     {
-//        NSLog(@"No files selected, return...");
+        //        NSLog(@"No files selected, return...");
         return;
     }
     [self showWindow:self];
-//    NSLog(@"%@",_window);
-//    window = [[MainWindowController alloc]initWithWindowNibName:@"MainWindowController"];
-    
-//    [mainWindow showWindow:self];
 	
 	/* launch import in an independent thread */
     @autoreleasepool {
@@ -276,40 +272,60 @@ static NSURL *getSavePath()
 }
 
 - (void)compression:(id)sender{
-//    NSLog(@"%@",_images);
+    //    NSLog(@"%@",_images);
     if([_images count] <= 0){
         NSAlert* alert = [NSAlert alertWithMessageText:@"错误!" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"请先选择要打包的文件" ];
         [alert beginSheetModalForWindow:nil modalDelegate:nil didEndSelector:nil contextInfo:nil];
-    }else{  
+    }else{
         @autoreleasepool {
             NSURL *savePath = getSavePath();
-            NSFileManager *fileManager = [NSFileManager defaultManager];
-//            NSMutableArray *items = [NSMutableArray new];
-            ZipArchive *zipFile = [ZipArchive new];
-            [zipFile CreateZipFile2:[savePath path]];
-            for (NSObject *value in _images) {
+            if (savePath != nil) {
                 
-                if([fileManager fileExistsAtPath:[[value imageRepresentation]path]]){
-                    if ([self isDir:[value imageRepresentation]]) {
-                        NSArray *content = [self readDir:[value imageRepresentation]];
-//                        NSLog(@"%@",content);
-                        for (FileList *val in content) {
-//                            NSLog(@"%@",val);
-                            if([self isAllowableFileType:[val getFullPath]]){
-                                [zipFile addFileToZip:[[val getFullPath]path] newname:[val getNewName]];
-                            }
-                        }
-                        
-                    }else{
-                        NSString *newname = [[value imageRepresentation] lastPathComponent];
-//                        NSLog(@"%@ : %@",newname,[value imageRepresentation]);
-                        [zipFile addFileToZip:[[value imageRepresentation] path] newname:newname];
-                    }
-                }
+                
+                [NSApp beginSheet:progressPanel modalForWindow:nil modalDelegate:self didEndSelector:@selector(progressDidEnd: returnCode: contextInfo:) contextInfo:NULL];
+                //                [NSThread detachNewThreadSelector:@selector(mkZipArchive:) toTarget:self withObject:savePath];
             }
-            [zipFile CloseZipFile2];
+            
         }
     }
+}
+
+- (void) mkZipArchive:(NSURL *)savePath{
+    
+    [NSApp beginSheet:progressPanel modalForWindow:nil modalDelegate:self didEndSelector:@selector(progressDidEnd: returnCode: contextInfo:) contextInfo:NULL];
+    
+    //    [progressAlert NSBeginAlertSheet:
+    //                      [self window],
+    //                      self,
+    //                      @selector(sheetDidEnd:resultCode:contentInfo:),
+    //                      NULL, NULL, @"message"];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    //            NSMutableArray *items = [NSMutableArray new];
+    
+    ZipArchive *zipFile = [ZipArchive new];
+    [zipFile CreateZipFile2:[savePath path]];
+    for (NSObject *value in _images) {
+        
+        if([fileManager fileExistsAtPath:[[value imageRepresentation]path]]){
+            if ([self isDir:[value imageRepresentation]]) {
+                NSArray *content = [self readDir:[value imageRepresentation]];
+                //                        NSLog(@"%@",content);
+                for (FileList *val in content) {
+                    //                            NSLog(@"%@",val);
+                    if([self isAllowableFileType:[val getFullPath]]){
+                        [zipFile addFileToZip:[[val getFullPath]path] newname:[val getNewName]];
+                    }
+                }
+                
+            }else{
+                NSString *newname = [[value imageRepresentation] lastPathComponent];
+                //                        NSLog(@"%@ : %@",newname,[value imageRepresentation]);
+                [zipFile addFileToZip:[[value imageRepresentation] path] newname:newname];
+            }
+        }
+    }
+    [zipFile CloseZipFile2];
 }
 
 - (NSMutableArray *)readDir:(NSURL *)path{
@@ -380,8 +396,8 @@ static NSURL *getSavePath()
 - (NSUInteger)numberOfItemsInImageBrowser:(IKImageBrowserView *)view
 {
 	/* item count to display is our datasource item count */
-//    NSLog(@"numberOfItemsInImageBrowser");
-//    NSLog(@"%lu",(unsigned long)[_images count]);
+    //    NSLog(@"numberOfItemsInImageBrowser");
+    //    NSLog(@"%lu",(unsigned long)[_images count]);
     return [_images count];
 }
 
@@ -436,7 +452,7 @@ static NSURL *getSavePath()
 
 -(void) imageBrowser:(IKImageBrowserView *)aBrowser cellWasDoubleClickedAtIndex:(NSUInteger)index{
     NSIndexSet *selectionIndexes = [aBrowser selectionIndexes];
-//    NSLog(@"change %@",selectionIndexes);
+    //    NSLog(@"change %@",selectionIndexes);
 	if ([selectionIndexes count] > 0)
 	{
         Images *anItem = [_images objectAtIndex:[selectionIndexes firstIndex]];
@@ -468,7 +484,7 @@ static NSURL *getSavePath()
 ////		NSURL *url = [anItem imageRepresentation];
 ////        NSNumber *isDirectoryFlag = nil;
 //        BOOL dir;
-//        
+//
 //        [[NSFileManager defaultManager] fileExistsAtPath:[anItem imageRepresentation] isDirectory:&dir];
 //        NSLog(@"%c",dir);
 ////        if ([url getResourceValue:&isDirectoryFlag forKey:NSURLIsDirectoryKey error:nil] && ![isDirectoryFlag boolValue])
@@ -504,13 +520,13 @@ static NSURL *getSavePath()
 //{
 //    NSData *data = nil;
 //    NSString *errorDescription;
-//	
+//
 //    NSPasteboard *pasteboard = [sender draggingPasteboard];
-//    
+//
 //	/* look for paths in pasteboard */
 //    if ([[pasteboard types] containsObject:NSFilenamesPboardType])
 //        data = [pasteboard dataForType:NSFilenamesPboardType];
-//    
+//
 //    if (data)
 //    {
 //		/* retrieves paths */
@@ -518,19 +534,19 @@ static NSURL *getSavePath()
 //                                                              mutabilityOption:kCFPropertyListImmutable
 //                                                                        format:nil
 //                                                              errorDescription:&errorDescription];
-//        
-//        
+//
+//
 //		/* add paths to our datasource */
 //        NSInteger i;
 //        NSInteger n = [filenames count];
 //        for (i=0; i<n; i++){
 //            [self addAnImageWithPath:[filenames objectAtIndex:i]];
 //        }
-//		
+//
 //		/* make the image browser reload our datasource */
 //        [self updateDatasource];
 //    }
-//    
+//
 //	/* we accepted the drag operation */
 //	return YES;
 //}
@@ -551,11 +567,11 @@ static NSURL *getSavePath()
     
     [trayItem setMenu:menu];
     [trayItem setHighlightMode:YES];
-//    [trayItem setTitle:@"HERE"];
+    //    [trayItem setTitle:@"HERE"];
     NSImage *barImage = [NSImage imageNamed:@"barIcon@24*24.png"];
     [barImage setSize:NSMakeSize(18.0, 18.0)];
-//    [barImage initWithContentsOfFile:@"0.jpg"];
-//    NSLog(@"barImage : %@",barImage);
+    //    [barImage initWithContentsOfFile:@"0.jpg"];
+    //    NSLog(@"barImage : %@",barImage);
     [trayItem setImage:barImage];
 }
 
@@ -578,6 +594,23 @@ static NSURL *getSavePath()
     [self updateDatasource];
     @autoreleasepool {
         [NSThread detachNewThreadSelector:@selector(addImagesWithPaths:) toTarget:self withObject:[NSArray arrayWithObjects:[[NSURL alloc]initFileURLWithPath:NSHomeDirectory()], nil]];
+    }
+}
+
+- (IBAction)cancelProgress:(id)sender{
+    NSLog(@"end sheet");
+    [progressPanel orderOut: self];
+    NSInteger code = 1001;
+    [NSApp endSheet: progressPanel returnCode: code];
+}
+
+- (void)progressDidEnd:(NSWindow *)panel returnCode:(int)returnCode contextInfo:(void *)context
+{
+//    xpc_connection_t connection = (xpc_connection_t)context;
+    NSLog(@"%d",returnCode);
+    if (returnCode != 0) {
+        // The cancel button was pressed.
+        NSBeep();
     }
 }
 
